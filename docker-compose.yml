@@ -1,0 +1,55 @@
+version: "3.7"
+services:                           
+  keycloack-postgres:
+    image: postgres:16
+    container_name: keycloack-postgres
+    hostname: keycloack-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRESQL_DB}
+      POSTGRES_USER: ${POSTGRESQL_USER}
+      POSTGRES_PASSWORD: ${POSTGRESQL_PASS}
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    networks:
+      - local-keycloak
+
+
+  keycloak:
+    depends_on:
+      - keycloack-postgres
+    container_name: keycloak
+    image: quay.io/keycloak/keycloak:latest
+    environment:
+      VIRTUAL_HOST: ${VIRTUAL_HOST}
+      PROXY_ADDRESS_FORWARDING: "true" # <==== very important if you use reverse proxy
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_HOSTNAME_STRICT_HTTPS: "true"
+      KC_HOSTNAME: "${VIRTUAL_HOST}"
+      KC_PROXY: "edge"
+      KC_HOSTNAME_ADMIN_URL: "https://${VIRTUAL_HOST}"
+      KC_DB: postgres
+      KC_DB_URL_HOST: keycloack-postgres
+      KC_DB_USERNAME: ${POSTGRESQL_USER}
+      KC_DB_PASSWORD: ${POSTGRESQL_PASS}
+      KC_DB_URL_DATABASE: ${POSTGRESQL_DB}
+
+    command: start-dev
+    restart: unless-stopped
+    networks:
+      - local-keycloak
+      - frontend
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=frontend
+      - traefik.http.routers.keycloack.tls.certresolver=myresolver
+      - traefik.http.routers.keycloack.rule=Host(`${VIRTUAL_HOST}`)
+      - traefik.http.routers.keycloack.entrypoints=entrypoints-https       
+      - traefik.http.services.keycloack.loadbalancer.server.port=80
+       
+networks:
+  frontend:
+    external: true
+  local-keycloak:
+    internal: true
