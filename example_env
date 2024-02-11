@@ -1,5 +1,4 @@
 VIRTUAL_HOST=example.com
-PROXY_ADDRESS_FORWARDING= "true"#  <==== very important if you use reverse proxy
 
 KEYCLOAK_ADMIN=admin
 KEYCLOAK_ADMIN_PASSWORD=changeme_ii6Eis9f

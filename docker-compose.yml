@@ -34,8 +34,9 @@ services:
       KC_DB_USERNAME: ${POSTGRESQL_USER}
       KC_DB_PASSWORD: ${POSTGRESQL_PASS}
       KC_DB_URL_DATABASE: ${POSTGRESQL_DB}
-
-    command: start-dev
+    volumes:    
+      - ./data/keycloak:/opt/keycloak/data
+    command: start
     restart: unless-stopped
     networks:
       - local-keycloak
@@ -46,7 +47,7 @@ services:
       - traefik.http.routers.keycloack.tls.certresolver=myresolver
       - traefik.http.routers.keycloack.rule=Host(`${VIRTUAL_HOST}`)
       - traefik.http.routers.keycloack.entrypoints=entrypoints-https       
-      - traefik.http.services.keycloack.loadbalancer.server.port=80
+      - traefik.http.services.keycloack.loadbalancer.server.port=8080
        
 networks:
   frontend:
