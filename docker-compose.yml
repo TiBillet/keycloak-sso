@@ -28,7 +28,7 @@ services:
       KC_HOSTNAME_STRICT_HTTPS: "true"
       KC_HOSTNAME: "${VIRTUAL_HOST}"
       KC_PROXY: "edge"
-      KC_HOSTNAME_ADMIN_URL: "https://${VIRTUAL_HOST}/adminou"
+      KC_HOSTNAME_ADMIN_URL: "https://${VIRTUAL_HOST}"
       KC_DB: postgres
       KC_DB_URL_HOST: keycloack-postgres
       KC_DB_USERNAME: ${POSTGRESQL_USER}
@@ -36,7 +36,7 @@ services:
       KC_DB_URL_DATABASE: ${POSTGRESQL_DB}
     volumes:    
       - ./data/keycloak:/opt/keycloak/data
-    command: start
+    command: start --optimized
     restart: unless-stopped
     networks:
       - local-keycloak
